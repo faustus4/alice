@@ -12,9 +12,10 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
-$subjectId = $_GET["subjectId"];
+$subjectId = $_GET['subjectId'];
 
-$sql = "SELECT * FROM quizzes where subject_id = ".$subjectId;
+$sql = "SELECT * FROM activities where subject_id = ".$subjectId;
+
 
 $result = $conn->query($sql);
 
@@ -22,10 +23,11 @@ $result = $conn->query($sql);
 if ($result->num_rows > 0) {
 	while($row= mysqli_fetch_assoc($result)){
 		array_push($response, array(
-			"quizId" => $row["quiz_id"],
+			"activityId" => $row["activity_id"],
 			"subjectId" => $row["subject_id"],
-			"questionItems" => $row["question_items"],
-			"quizName" => $row["quiz_name"],
+			"activityDescription" => $row["activity_description"],
+			"activityName" => $row["activity_name"],
+			"fileName" => $row["file_name"],
 			"dateUpdated" => $row["date_updated"]
 		));
 	}

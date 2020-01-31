@@ -19,10 +19,25 @@ $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
 	$_SESSION["authorized"]=true;
+	$_SESSION["userType"]="admin";
     echo "1";
 } else {
-	$_SESSION["authorized"]=false;
-    echo "2";
+
+	$sql2 =  "SELECT * FROM students where student_id='".$input["username"]."' and (password='".$input["password"]."' || default_password='".$input["password"]."') ";
+
+	$result2 = $conn->query($sql2);
+
+	if ($result2->num_rows > 0) {
+		$_SESSION["authorized"]=true;
+		$_SESSION["userType"]="student";
+		while($row= mysqli_fetch_assoc($result2)){
+			$_SESSION["studentId"] = $row["id"];
+		}
+	    echo "1";
+	} else {
+		$_SESSION["authorized"]=false;
+    	echo "2";
+	}
 }
 
 ?>

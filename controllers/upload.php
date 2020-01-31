@@ -28,7 +28,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$sql = "INSERT INTO lessons (subject_id, lesson_description, lesson_name, file_name) values ('1','".$lessonDescription."','".$lessonName."', '".$file_name."')";
+$sql = "INSERT INTO lessons (subject_id, lesson_description, lesson_name, file_name) values ('".$subjectId."','".$lessonDescription."','".$lessonName."', '".$file_name."')";
 
 $result = $conn->query($sql);
 

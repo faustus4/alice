@@ -12,7 +12,11 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
-$sql = "SELECT * FROM lessons";
+$subjectId = $_GET["subjectId"];
+
+$sql = "SELECT * FROM lessons WHERE subject_id = ".$subjectId;
+
+
 $result = $conn->query($sql);
 
 

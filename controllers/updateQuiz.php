@@ -4,9 +4,9 @@ session_start();
 
 include "../models/connection.php";
 
+$quizId = isset($_POST['quizId']) ?$_POST['quizId'] : "";
 $quizName = isset($_POST['quizName']) ?$_POST['quizName'] : "";
 $quizItems = isset($_POST['quizItems']) ?$_POST['quizItems'] : "";
-$subjectId = $_POST['subjectId'];
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -14,7 +14,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$sql = "INSERT INTO quizzes (subject_id, quiz_name,question_items) values ('".$subjectId."','".$quizName."','".$quizItems."')";
+$sql = "UPDATE quizzes set quiz_name='".$quizName."', question_items='".$quizItems."' where quiz_id = ".$quizId."";
 
 $result = $conn->query($sql);
 

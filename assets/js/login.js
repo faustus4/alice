@@ -16,7 +16,10 @@ $(document).ready(function(){
 		}).done(function(s){
 			if(s=="1")
 			{
+				$("#showErrorLogin").hide();
 				window.location.href = "index.php";
+			} else {
+				$("#showErrorLogin").show();
 			}
 		});
 	

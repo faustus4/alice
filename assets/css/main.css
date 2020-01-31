@@ -22,6 +22,11 @@
 	color: white;
 }
 
+#subjectList .active {
+	display: block;
+    width: 100%;
+}
+	
 #subjectList a {
 	color: gray;
 }
@@ -75,4 +80,14 @@
 
 #quizzesSection, #activitiesSection, #quizzesResultSection {
 	display: none;
+}
+
+.hideSubject
+{
+	display:none;
+}
+
+.showSubject
+{
+	display: inherit;
 }

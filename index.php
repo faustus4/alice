@@ -4,6 +4,10 @@ if(!isset($_SESSION['authorized'])){ //if login in session is not set
     header("Location: login.php");
 }
 
+if(isset($_SESSION["studentId"])){
+  echo("<input type='hidden' id='globalStudentId' value=".$_SESSION["studentId"].">");
+}
+
 include 'components/header.php';
 ?>
 <link href="assets/css/main.css" rel="stylesheet">
@@ -20,7 +24,7 @@ include 'components/header.php';
             <li class="nav-item active" id="subjectMenu">
               <a class="nav-link" href="#"><i class="fa fa-book"></i> Subjects</a>
             </li>
-            <li class="nav-item" id="studentMenu">
+            <li class="nav-item restrictedAccess" id="studentMenu">
               <a class="nav-link" href="#"><i class="fa fa-book-reader"></i> Students</a>
             </li>
           </ul>
@@ -39,20 +43,32 @@ include 'components/header.php';
     <div class="container-fluid">
       <div class="row">
         <nav class="col-sm-3 col-md-2 d-none d-sm-block bg-light sidebar" id="subjectList">
+          <label>Learning Area</label>
+          <select class="form-control" id="learningAreaSelect">
+            <option value='0' disabled selected>----</option>
+            <option value='1'>Home Economics</option>
+            <option value='2'>ICT</option>
+            <option value='3'>Industrial Arts</option>
+            <option value='4'>AFA</option>
+          </select>
+          <br/>
           <ul class="nav nav-pills flex-column" id="subjectNavList">
-            <li class="nav-item">
-              <a class="nav-link active" href="#">Home Economics</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">ICT</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Industrial Arts</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">AFA</a>
-            </li>
+            
           </ul>
+          <br/>
+          
+          <div class="restrictedAccess">
+            <a class="text-sm" data-toggle="modal" data-target="#addSubjectModal">
+              <i class="fa fa-plus" data-toggle="tooltip" data-placement="top" title="Tooltip on top"></i>
+            </a>&nbsp;
+            <a class="text-sm" data-toggle="modal" data-target="#editSubjectModal" id="editSubject">
+              <i class="fa fa-edit" data-toggle="tooltip" data-placement="top" title="Tooltip on top"></i>
+            </a>&nbsp;
+            <a class="text-sm" data-toggle="modal" data-target="#deleteSubjectModal" id="deleteSubject">
+              <i class="fa fa-trash" data-toggle="tooltip" data-placement="top" title="Tooltip on top"></i>
+            </a>
+          </div>
+          
 
         </nav>
 
@@ -87,7 +103,7 @@ include 'components/header.php';
           <br/><br/>
 
           <div id="lessonSection">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLessonModal">
+            <button type="button" class="btn btn-primary addButton restrictedAccess" data-toggle="modal" data-target="#addLessonModal" disabled>
               <i class="fa fa-plus"></i> Add Lesson
             </button>
             <br/><br/>
@@ -108,7 +124,7 @@ include 'components/header.php';
           </div>
 
           <div id="quizzesSection">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addQuizModal">
+            <button type="button" class="btn btn-primary restrictedAccess" data-toggle="modal" data-target="#addQuizModal">
               <i class="fa fa-plus"></i> Add Quiz
             </button>
             <br/><br/>
@@ -127,7 +143,7 @@ include 'components/header.php';
           </div>
 
           <div id="activitiesSection">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addActivityModal">
+            <button type="button" class="btn btn-primary restrictedAccess" data-toggle="modal" data-target="#addActivityModal">
               <i class="fa fa-plus"></i> Add Activity
             </button>
             <br/><br/>
@@ -142,18 +158,7 @@ include 'components/header.php';
                   </tr>
               </thead>
               <tbody>
-                <tr>
-                      <td>1</td>
-                      <td>Sewing Activity #1</td>
-                      <td>The art of sewing</td>
-                      <td>January 23, 2020</td>
-                      <td>
-                        
-                         <a href="assets/js/ViewerJS/#../../../lessons/test.otp" target="_blank"><button class="btn btn-success"><i class="fa fa-eye"></i> View</button></a>
-                        <button class="btn btn-info"><i class="fa fa-edit"></i> Edit</button>
-                      </td>
-
-                  </tr>
+               
               </tbody>
             </table>
           </div>
@@ -183,7 +188,63 @@ include 'components/header.php';
               </tbody>
             </table>
           </div>
-      
+        
+          <!--Add Subject Modal-->
+          <div class="modal fade" id="addSubjectModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content modal-lg">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Add Subject</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form action="controllers/addSubject.php" method ="POST" enctype="multipart/form-data">
+                <input type="hidden" name="learningAreaId"/>
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label for="subjectName">Subject Name</label>
+                    <input type="text" class="form-control" name="subjectName"/>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!--Edit Subject Modal-->
+          <div class="modal fade" id="editSubjectModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content modal-lg">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Edit Subject</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form action="controllers/updateSubject.php" method ="POST" enctype="multipart/form-data">
+                <input type="hidden" name="subjectId"/>
+                <input type="hidden" name="learningAreaId"/>
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label for="subjectName">Subject Name</label>
+                    <input type="text" class="form-control" name="subjectName"/>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+
           <!--Add Lesson Modal -->
           <div class="modal fade" id="addLessonModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -195,6 +256,7 @@ include 'components/header.php';
                   </button>
                 </div>
                 <form action="controllers/upload.php" method ="POST" enctype="multipart/form-data">
+                <input type="hidden" name="subjectId"/>
                 <div class="modal-body">
                       <div class="form-group">
                         <label for="lessonName">Lesson Name</label>
@@ -267,7 +329,7 @@ include 'components/header.php';
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
-                <form action="controllers/upload.php" method ="POST" enctype="multipart/form-data">
+                <form action="controllers/addActivity.php" method ="POST" enctype="multipart/form-data">
                 <div class="modal-body">
                       <div class="form-group">
                         <label for="activityName">Activity Name</label>
@@ -287,6 +349,44 @@ include 'components/header.php';
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                   <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!--Update Activity Modal -->
+          <div class="modal fade" id="updateActivityModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content modal-lg">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Update Activity</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form action="controllers/updateActivity.php" method ="POST" enctype="multipart/form-data">
+                  <input type = "hidden" name="activityId" />
+                  <input type="hidden" name="subjectId"/>
+                <div class="modal-body">
+                      <div class="form-group">
+                        <label for="lessonName">Activity Name</label>
+                        <input type="text" class="form-control" name="activityName"/>
+                      </div>
+                      <div class="form-group">
+                        <label for="lessonName">Description</label>
+                        <input type="text" class="form-control" name="activityDescription"/>
+                      </div>
+                      <div class="form-group">
+                        <label for="lessonFile">Lesson File</label>
+                        <input type="file" class="form-control" name="activityFile"/>
+                        <small class="form-text text-muted">Leave blank if you don't want to change the existing file. Please upload PDF and ODF file only.</small>
+                      </div>
+                      
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Update</button>
                 </div>
                 </form>
               </div>
@@ -314,12 +414,12 @@ include 'components/header.php';
                       <div>
                         <h5>Quiz Items</h5>
 
-                        <div id="quizContainer">
+                        <div class="quizContainer">
                         </div>
                         <br/>
                         <label>Question Type: </label>
-                        <input type="hidden" id="hiddenQuestionKey" >
-                        <select class="form-control" id="questionType">
+                        <input type="hidden" class="hiddenQuestionKey" >
+                        <select class="form-control" id="questionType" name="questionType">
                           <option value="multipleChoice">Multiple Choice</option>
                           <option value="fillInTheBlank">Fill In The Blank</option>
                           <option value="enumeration">Enumeration</option>
@@ -329,29 +429,29 @@ include 'components/header.php';
                         <br>
                         <div class="form-group">
                           <label>Question: </label>
-                          <textarea class="form-control" id="question"></textarea>
+                          <textarea class="form-control" id="question" name="question"></textarea>
                         </div>
 
                         <!--Multiple choices-->
-                        <div id="multipleChoiceInput">
+                        <div class="multipleChoiceInput">
                           <div class="row">
                             <div class="form-group col-md-6">
                               <label>A: </label>
-                              <input type="text" class="form-control" id="multipleChoiceA" />
+                              <input type="text" class="form-control"  name="multipleChoiceA" />
                             </div>
                             <div class="form-group col-md-6">
                               <label>B: </label>
-                              <input type="text" class="form-control" id="multipleChoiceB" />
+                              <input type="text" class="form-control"  name="multipleChoiceB"/>
                             </div>
                           </div>
                           <div class="row">
                             <div class="form-group col-md-6">
                               <label>C: </label>
-                              <input type="text" class="form-control" id="multipleChoiceC" />
+                              <input type="text" class="form-control"  name="multipleChoiceC"/>
                             </div>
                             <div class="form-group col-md-6">
                               <label>D: </label>
-                              <input type="text" class="form-control" id="multipleChoiceD" />
+                              <input type="text" class="form-control"  name="multipleChoiceD"/>
                             </div>
                           </div>  
                         </div>
@@ -359,10 +459,10 @@ include 'components/header.php';
 
                         <div class="form-group">
                           <label>Answer: </label>
-                          <div id="answerTypeText">
+                          <div class="answerTypeText">
                             <input type="text" class="form-control" />  
                           </div>
-                          <div id="answerTypeTrueOrFalse">
+                          <div class="answerTypeTrueOrFalse">
 
                             <input type="radio" name="trueOrFalse" value="TRUE">
                             <label>True&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
@@ -370,7 +470,7 @@ include 'components/header.php';
                             <input type="radio" name="trueOrFalse" value="FALSE">
                             <label>False&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>  
                           </div>
-                          <div id="answerTypeMultipleChoice">
+                          <div class="answerTypeMultipleChoice">
 
                             <input type="radio" name="multipleChoice" value="A">
                             <label>A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
@@ -384,14 +484,14 @@ include 'components/header.php';
                             <input type="radio" name="multipleChoice" value="D">
                             <label>D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>    
                           </div>
-                          <div id="answerTypeEnumeration">
+                          <div class="answerTypeEnumeration">
                             <textarea class="form-control"></textarea>
                           </div>
                         </div>
                         <div>
                           
                         </div>
-                        <button type="button" id="addQuestionSubmit">Add Question</button>
+                        <button type="button" class="addQuestionSubmit">Add Question</button>
 
                         
                         <!--Fill In the blank-->
@@ -403,6 +503,123 @@ include 'components/header.php';
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                   <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!--Update Quiz Modal -->
+          <div class="modal fade large-modal" id="updateQuizModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Update Quiz</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form action="controllers/updateQuiz.php" method ="POST" enctype="multipart/form-data">
+                <textarea style="display:none;" name="quizItems"></textarea>
+                <input type="hidden" style="display:none;" name="subjectId"></textarea>
+                <input type="hidden" style="display:none;" name="quizId"></textarea>
+                <div class="modal-body">
+                      <div class="form-group">
+                        <label for="activityName">Quiz Name</label>
+                        <input type="text" class="form-control" name="quizName"/>
+                      </div>
+                      <div>
+                        <h5>Quiz Items</h5>
+
+                        <div class="quizContainer">
+                        </div>
+                        <br/>
+                        <label>Question Type: </label>
+                        <input type="hidden" class="hiddenQuestionKey" >
+                        <select class="form-control" name="questionType">
+                          <option value="multipleChoice">Multiple Choice</option>
+                          <option value="fillInTheBlank">Fill In The Blank</option>
+                          <option value="enumeration">Enumeration</option>
+                          <option value="trueOrFalse">True or False</option>
+                          <option value="identification">Identification</option>
+                        </select>
+                        <br>
+                        <div class="form-group">
+                          <label>Question: </label>
+                          <textarea class="form-control" name="question"></textarea>
+                        </div>
+
+                        <!--Multiple choices-->
+                        <div class="multipleChoiceInput">
+                          <div class="row">
+                            <div class="form-group col-md-6">
+                              <label>A: </label>
+                              <input type="text" class="form-control"   name="multipleChoiceA"/>
+                            </div>
+                            <div class="form-group col-md-6">
+                              <label>B: </label>
+                              <input type="text" class="form-control" name="multipleChoiceB"/>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="form-group col-md-6">
+                              <label>C: </label>
+                              <input type="text" class="form-control"  name="multipleChoiceC"/>
+                            </div>
+                            <div class="form-group col-md-6">
+                              <label>D: </label>
+                              <input type="text" class="form-control"  name="multipleChoiceD"/>
+                            </div>
+                          </div>  
+                        </div>
+                        
+
+                        <div class="form-group">
+                          <label>Answer: </label>
+                          <div class="answerTypeText">
+                            <input type="text" class="form-control" />  
+                          </div>
+                          <div class="answerTypeTrueOrFalse">
+
+                            <input type="radio" name="trueOrFalse" value="TRUE">
+                            <label>True&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+
+                            <input type="radio" name="trueOrFalse" value="FALSE">
+                            <label>False&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>  
+                          </div>
+                          <div class="answerTypeMultipleChoice">
+
+                            <input type="radio" name="multipleChoice" value="A">
+                            <label>A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+
+                            <input type="radio" name="multipleChoice" value="B">
+                            <label>B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+
+                            <input type="radio" name="multipleChoice" value="C">
+                            <label>C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>  
+
+                            <input type="radio" name="multipleChoice" value="D">
+                            <label>D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>    
+                          </div>
+                          <div class="answerTypeEnumeration">
+                            <textarea class="form-control"></textarea>
+                          </div>
+                        </div>
+                        <div>
+                          
+                        </div>
+                        <button type="button" class="addQuestionSubmit">Add Question</button>
+
+                        
+                        <!--Fill In the blank-->
+                        <!--True of False-->
+                        <!--Inumeration-->
+                      </div>
+                      
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Update</button>
                 </div>
                 </form>
               </div>
@@ -431,19 +648,6 @@ include 'components/header.php';
                 </tr>
             </thead>
             <tbody>
-              <tr>
-                    <td>234234234</td>
-                    <td>Erwin</td>
-                    <td>Lirazan</td>
-                    <td>Daza</td>
-                    <td>SOC1</td>
-                    <td>abcdefg</td>
-                    <td>2010</td>
-                    <td>
-                      <button class="btn btn-info btn-sm"><i class="fa fa-edit"></i> Edit</button>
-                    </td>
-
-                </tr>
             </tbody>
           </table>
 
@@ -465,23 +669,70 @@ include 'components/header.php';
                   </div>
                   <div class="form-group">
                     <label for="firstName">First Name</label>
-                    <input type="text" class="form-control" id="firstName" name="firstName"/>
+                    <input type="text" class="form-control" id="firstName" name="fname"/>
                   </div>
                   <div class="form-group">
                     <label for="middleName">Middle Name</label>
-                    <input type="text" class="form-control" id="middleName" name="middleName"/>
+                    <input type="text" class="form-control" id="middleName" name="mname"/>
                   </div>
                   <div class="form-group">
                     <label for="lastName">Last Name</label>
-                    <input type="text" class="form-control" id="lastName" name="lastName"/>
+                    <input type="text" class="form-control" id="lastName" name="lname"/>
                   </div>
                   <div class="form-group">
                     <label for="studentSection">Section</label>
-                    <input type="text" class="form-control" id="studentSection" name="studentSection"/>
+                    <input type="text" class="form-control" id="studentSection" name="section"/>
                   </div>
                   <div class="form-group">
                     <label for="schoolYear">School Year</label>
                     <input type="text" class="form-control" id="schoolYear" name="schoolYear"/>
+                  </div>  
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!--Update Student Modal -->
+          <div class="modal fade" id="updateStudentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content modal-lg">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Add Student</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form action="controllers/updateStudent.php" method ="POST" enctype="multipart/form-data">
+                  <input type="hidden" name="id"/>
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label for="studentId">Student ID</label>
+                    <input type="text" class="form-control" name="studentId"/>
+                  </div>
+                  <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" class="form-control" name="fname"/>
+                  </div>
+                  <div class="form-group">
+                    <label for="middleName">Middle Name</label>
+                    <input type="text" class="form-control" name="mname"/>
+                  </div>
+                  <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" class="form-control" name="lname"/>
+                  </div>
+                  <div class="form-group">
+                    <label for="studentSection">Section</label>
+                    <input type="text" class="form-control" name="section"/>
+                  </div>
+                  <div class="form-group">
+                    <label for="schoolYear">School Year</label>
+                    <input type="text" class="form-control" name="schoolYear"/>
                   </div>  
                 </div>
                 <div class="modal-footer">

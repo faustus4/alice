@@ -10,8 +10,11 @@
   </div>
   <div class="main">
      <div class="col-md-6 col-sm-12">
+        
         <div class="login-form">
-           
+           <div class="alert alert-warning" role="alert" id="showErrorLogin" style="display:none;">
+              Username and password didn't match.
+            </div><br>
               <div class="form-group">
                  <label>User Name</label>
                  <input type="text" class="form-control" placeholder="User Name" id="username">
