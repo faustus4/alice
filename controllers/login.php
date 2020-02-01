@@ -20,6 +20,7 @@ $result = $conn->query($sql);
 if ($result->num_rows > 0) {
 	$_SESSION["authorized"]=true;
 	$_SESSION["userType"]="admin";
+	$_SESSION["password"]=$input["password"];
     echo "1";
 } else {
 
@@ -30,8 +31,12 @@ if ($result->num_rows > 0) {
 	if ($result2->num_rows > 0) {
 		$_SESSION["authorized"]=true;
 		$_SESSION["userType"]="student";
+		$isPasswordEmpty = true;
+
 		while($row= mysqli_fetch_assoc($result2)){
 			$_SESSION["studentId"] = $row["id"];
+			$_SESSION["fname"] = $row["fname"];
+			$_SESSION["password"]=$input["password"];
 		}
 	    echo "1";
 	} else {

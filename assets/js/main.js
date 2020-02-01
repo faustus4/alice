@@ -2,6 +2,7 @@ $(document).ready(function() {
 
   if($("#globalStudentId").val() != null){
     $(".restrictedAccess").hide();
+    localStorage.setItem("topMenu","#subjects");
   }
 
 	var questions = [];
@@ -10,15 +11,54 @@ $(document).ready(function() {
 
     var q = $('#quizListTable').DataTable();
     var activityTable = $('#activityListTable').DataTable();
-    var studentsTable = $('#studentListTable').DataTable();
 
-    $('#quizResultListTable').DataTable();
+    $('#studentListTable thead tr').clone(true).appendTo( '#studentListTable thead' );
+    $('#studentListTable thead tr:eq(1) th').each( function (i) {
+        var title = $(this).text();
+        $(this).html( '<input type="text" placeholder="filter '+title+'" style="width:100%"/> ' );
+
+        $( 'input', this ).on( 'keyup change', function () {
+            if ( studentsTable.column(i).search() !== this.value ) {
+                studentsTable
+                    .column(i)
+                    .search( this.value )
+                    .draw();
+            }
+        } );
+    } );
+
+    var studentsTable = $('#studentListTable').DataTable({
+      orderCellsTop: true,
+      fixedHeader: true
+    });
+
+
+  $('#quizResultListTable thead tr').clone(true).appendTo( '#quizResultListTable thead' );
+    $('#quizResultListTable thead tr:eq(1) th').each( function (i) {
+        var title = $(this).text();
+        $(this).html( '<input type="text" placeholder="filter '+title+'" style="width:100%"/> ' );
+
+        $( 'input', this ).on( 'keyup change', function () {
+            if ( qr.column(i).search() !== this.value ) {
+                qr
+                    .column(i)
+                    .search( this.value )
+                    .draw();
+            }
+        } );
+    } );
+
+    var qr = $('#quizResultListTable').DataTable({
+      orderCellsTop: true,
+      fixedHeader: true
+    });
 
     fetchLessons(0);
     fetchQuizzes(0);
     fetchActivities(0);
     fetchStudents();
     fetchSubjects();
+    fetchQuizResults(0);
 
     function fetchSubjects(){
       var counter = 1;
@@ -37,6 +77,7 @@ $(document).ready(function() {
           fetchLessons($(this).attr('subject'));
           fetchQuizzes($(this).attr('subject'));
           fetchActivities($(this).attr('subject'));
+          fetchQuizResults($(this).attr('subject'));
           $("input[name='subjectId']").val($(this).attr('subject'));
           localStorage.setItem("subject", $(this).attr('subject'));
         });
@@ -87,7 +128,7 @@ $(document).ready(function() {
   	            val.lessonName,
   	            val.lessonDescription,
   	            val.dateUpdated,
-  	            '<a href="assets/js/ViewerJS/#../../../lessons/'+val.fileName+'" target="_blank"><button class="btn btn-success btn-sm"><i class="fa fa-eye"></i> View</button></a>    <button class="btn btn-info btn-sm editLessonBtn restrictedAccess" data-target="#updateLessonModal" data-toggle="modal"><i class="fa fa-edit"></i> Edit</button>'
+  	            '<a href="assets/js/ViewerJS/#../../../lessons/'+val.fileName+'" target="_blank"><button class="btn btn-success btn-sm viewLesson"><i class="fa fa-eye"></i> View</button></a>    <button class="btn btn-info btn-sm editLessonBtn restrictedAccess" data-target="#updateLessonModal" data-toggle="modal"><i class="fa fa-edit"></i> Edit</button>'
   	        ] ).draw( false );
   		  })
 
@@ -99,9 +140,48 @@ $(document).ready(function() {
 
         if($("#globalStudentId").val() != null){
           $(".restrictedAccess").hide();
+          $(".viewLesson").html('<i class="fa fa-book"></i> Read');
         }
 		  });
     }
+
+    function fetchQuizResults(subjectId){
+      var counter = 1;
+      $.get( "controllers/getQuizResult.php?subjectId="+subjectId, function( data ) {
+        qr.clear().draw();
+        $.each(JSON.parse(data), function(key, val){
+          qr.row.add( [
+                val.quizId,
+                val.quizName,
+                val.studentName,
+                val.numberOfItems,
+                val.numberOfCorrect,
+                val.dateUpdated,
+                val.section,
+                val.schoolYear,
+                '<div class="scores" style="display:none;">'+val.scores+'</div><div class="answers" style="display:none;">'+val.answers+'</div><div class="questions" style="display:none;">'+val.questionItems+'</div><button class="btn btn-info btn-sm viewQuizResultBtn" data-target="#takeQuizModal" data-toggle="modal"><i class="fa fa-edit"></i> View Answers</button>'
+            ] ).draw( false );
+        })
+
+        $(".viewQuizResultBtn").click(function(){
+
+          $("#takeQuizModal input[name='quizId']").val($(this).parent().siblings(":eq(0)").text());
+          $("#quizTitleName").text($(this).parent().siblings(":eq(1)").text());
+          questions =  JSON.parse($(this).siblings('div.questions').text());
+          var answers =  JSON.parse($(this).siblings('div.answers').text());
+          var scores =  JSON.parse($(this).siblings('div.scores').text());
+          
+          $("input[name='id']").val($("#globalStudentId").val());
+          $("#showCompleteQuizError").hide();
+          $("#showCompleteQuizSuccess").hide();
+          $("#answerQuizSubmit").hide();
+
+          renderQuizTestResult(questions, "#takeQuizModal", answers, scores);
+        })
+
+      });
+    }
+
 
     function fetchStudents(){
       var counter = 1;
@@ -127,7 +207,7 @@ $(document).ready(function() {
           $("#updateStudentModal input[name='mname']").val($(this).parent().siblings(":eq(2)").text());
           $("#updateStudentModal input[name='lname']").val($(this).parent().siblings(":eq(3)").text());
           $("#updateStudentModal input[name='section']").val($(this).parent().siblings(":eq(4)").text());
-          $("#updateStudentModal input[name='schoolYear']").val($(this).parent().siblings(":eq(5)").text());
+          $("#updateStudentModal input[name='schoolYear']").val($(this).parent().siblings(":eq(6)").text());
           $("#updateStudentModal input[name='id']").val($(this).siblings('div').text());
         })
       });
@@ -170,7 +250,7 @@ $(document).ready(function() {
                 val.quizId,
                 val.quizName,
                 val.dateUpdated,
-                '<div style="display:none;">'+val.questionItems+'</div><button class="btn btn-info btn-sm editQuizBtn restrictedAccess" data-target="#updateQuizModal" data-toggle="modal"><i class="fa fa-edit"></i> Manage</button>'
+                '<div style="display:none;">'+val.questionItems+'</div><button class="btn btn-info btn-sm editQuizBtn restrictedAccess" data-target="#updateQuizModal" data-toggle="modal"><i class="fa fa-edit"></i> Manage</button><button class="btn btn-info btn-sm takeQuizBtn restrictedAccess1" data-target="#takeQuizModal" data-toggle="modal"><i class="fa fa-edit"></i> Answer Quiz</button>'
             ] ).draw( false );
         })
 
@@ -182,8 +262,22 @@ $(document).ready(function() {
           renderQuizTable(questions, "#updateQuizModal");
         })
 
+        $(".takeQuizBtn").click(function(){
+          $("#takeQuizModal input[name='quizId']").val($(this).parent().siblings(":eq(0)").text());
+          $("#quizTitleName").text($(this).parent().siblings(":eq(1)").text());
+          questions =  JSON.parse($(this).siblings('div').text());
+          $("input[name='id']").val($("#globalStudentId").val());
+          $("#showCompleteQuizError").hide();
+          $("#showCompleteQuizSuccess").hide();
+          $("#answerQuizSubmit").attr("disabled", false);
+          $("#answerQuizSubmit").show();
+          renderQuizTest(questions, "#takeQuizModal");
+        })
+
         if($("#globalStudentId").val() != null){
           $(".restrictedAccess").hide();
+        } else {
+          $(".restrictedAccess1").hide();
         }
       });
     }
@@ -221,6 +315,7 @@ $(document).ready(function() {
     })
 
     $("#quizzesResultToggleView").click(function(){
+      localStorage.setItem("topSubmenu","#quizResults");
     	$("#quizzesSection").hide();
     	$("#lessonSection").hide();
     	$("#activitiesSection").hide();
@@ -379,7 +474,260 @@ $(document).ready(function() {
     	renderQuizTable(questions, container);
     }
 
+    function renderQuizTestResult(data, container, answers, scores){
 
+      $(container+" textarea[name='quizItems']").val(JSON.stringify(data));
+      var quizHtml = "";
+      var quizCount = 0;
+      var instruction ="";
+      $(container+" .quizContainer").empty();
+      $.each(data,function(key, value){
+        if(value.type=='fillInTheBlank')
+        {
+          instruction = "Fill in the blank"
+        }
+        if(value.type=='multipleChoice')
+        {
+          instruction = "Multiple choice"
+        }
+        if(value.type=='trueOrFalse')
+        {
+          instruction = "True or false"
+        }
+        if(value.type=='enumeration')
+        {
+          instruction = "Enumerate"
+        }
+        if(value.type=='identification')
+        {
+          instruction = "Identification"
+        }
+
+        quizCount++;
+
+        quizHtml += "<div><b>" +quizCount+".</b> "+ value.question+"<span class='small' style='color:gray'>    <i>"+instruction+"</i></span>&nbsp;&nbsp;<span class='small restrictedAccess' style='color:gray'><a href='#' class='editItem' data='"+key+"'>edit</a> | <a href='#' class='deleteItem' data='"+key+"'>delete</a></span></div><br/>"
+        if(value.type=='multipleChoice')
+        {
+          
+          quizHtml += "<div><input type='radio' name='"+quizCount+"' class='qAnswer' value='A'> A. "+value.choices[0]+"</div>"
+          quizHtml += "<div><input type='radio' name='"+quizCount+"' class='qAnswer' value='B'> B. "+value.choices[1]+"</div>"
+          quizHtml += "<div><input type='radio' name='"+quizCount+"' class='qAnswer' value='C'> C. "+value.choices[2]+"</div>"
+          quizHtml += "<div><input type='radio' name='"+quizCount+"' class='qAnswer' value='D'> D. "+value.choices[3]+"</div><br/>"
+        }
+
+        if(value.type=='trueOrFalse')
+        {
+          quizHtml += "<div><input type='radio' name='"+quizCount+"' class='qAnswer' value='TRUE'> True </div>"
+          quizHtml += "<div><input type='radio' name='"+quizCount+"' class='qAnswer' value='FALSE'> False </div><br/>"
+        }
+
+        if(value.type=='enumeration')
+        {
+          quizHtml += "<div><textarea name='"+quizCount+"' class='qAnswer form-control'></textarea></div><br/>"
+        }
+
+        if(value.type=="identification" || value.type=="fillInTheBlank")
+        {
+          quizHtml += "<div><input type='text' name='"+quizCount+"' class='qAnswer form-control'></div><br/>"
+        }
+
+        var answerColor = "text-success";
+        var answerLogo = "fa-check-circle";
+
+        if(scores[key] == "0") {
+          answerColor = "text-danger";
+          answerLogo = "fa-times-circle";
+        }
+        quizHtml += "<b class='"+answerColor+"'><i class='fa "+answerLogo+"'></i> Correct Answer: "+value.answer+"</b><br/><br/>"
+      })
+
+      $(container+" .quizContainer").append(quizHtml);
+
+      $(".qAnswer").attr("disabled",true);
+
+      $.each(questions, function(k,v){
+        var i = k+1;
+        if(v.type=='multipleChoice')
+        {
+          $("input[name='"+i+"'][value='"+answers[k]+"']").attr("checked", true)
+        }
+        if(v.type=='trueOrFalse')
+        {
+          $("input[name='"+i+"'][value='"+answers[k]+"']").attr("checked", true)
+        }
+        if(v.type=='fillInTheBlank' || v.type=='identification')
+        {
+          $("input[name='"+i+"']").val(answers[k])
+        }
+        if(v.type=='enumeration')
+        {
+          $("textarea[name='"+i+"']").val(answers[k])
+        }
+      })
+
+      if($("#globalStudentId").val() != null){
+        $(".restrictedAccess").hide();
+      }
+    }
+
+    function renderQuizTest(data, container){
+
+      $(container+" textarea[name='quizItems']").val(JSON.stringify(data));
+      var quizHtml = "";
+      var quizCount = 0;
+      var instruction ="";
+      $(container+" .quizContainer").empty();
+      $.each(data,function(key, value){
+        if(value.type=='fillInTheBlank')
+        {
+          instruction = "Fill in the blank"
+        }
+        if(value.type=='multipleChoice')
+        {
+          instruction = "Multiple choice"
+        }
+        if(value.type=='trueOrFalse')
+        {
+          instruction = "True or false"
+        }
+        if(value.type=='enumeration')
+        {
+          instruction = "Enumerate"
+        }
+        if(value.type=='identification')
+        {
+          instruction = "Identification"
+        }
+
+        quizCount++;
+
+        quizHtml += "<div><b>" +quizCount+".</b> "+ value.question+"<span class='small' style='color:gray'>    <i>"+instruction+"</i></span>&nbsp;&nbsp;<span class='small restrictedAccess' style='color:gray'><a href='#' class='editItem' data='"+key+"'>edit</a> | <a href='#' class='deleteItem' data='"+key+"'>delete</a></span></div><br/>"
+        if(value.type=='multipleChoice')
+        {
+          console.log("hey")
+          quizHtml += "<div><input type='radio' name='"+quizCount+"' class='qAnswer' value='A'> A. "+value.choices[0]+"</div>"
+          quizHtml += "<div><input type='radio' name='"+quizCount+"' class='qAnswer' value='B'> B. "+value.choices[1]+"</div>"
+          quizHtml += "<div><input type='radio' name='"+quizCount+"' class='qAnswer' value='C'> C. "+value.choices[2]+"</div>"
+          quizHtml += "<div><input type='radio' name='"+quizCount+"' class='qAnswer' value='D'> D. "+value.choices[3]+"</div><br/>"
+        }
+
+        if(value.type=='trueOrFalse')
+        {
+          quizHtml += "<div><input type='radio' name='"+quizCount+"' class='qAnswer' value='TRUE'> True </div>"
+          quizHtml += "<div><input type='radio' name='"+quizCount+"' class='qAnswer' value='FALSE'> False </div>"
+        }
+
+        if(value.type=='enumeration')
+        {
+          quizHtml += "<div><textarea name='"+quizCount+"' class='qAnswer form-control'></textarea></div>"
+        }
+
+        if(value.type=="identification" || value.type=="fillInTheBlank")
+        {
+          quizHtml += "<div><input type='text' name='"+quizCount+"' class='qAnswer form-control'></div>"
+        }
+
+        quizHtml += "<br/>"
+      })
+
+      $(container+" .quizContainer").append(quizHtml);
+
+      if($("#globalStudentId").val() != null){
+        $(".restrictedAccess").hide();
+      }
+
+      $("#answerQuizSubmit").click(function(){
+        var answerList = [];
+        var scoreList = [];
+        $.each(questions, function(key, value){
+          var quizItem = key+1;
+          if(value.type == 'multipleChoice') {
+            answerList.push($("input[name='"+quizItem+"']:checked").val());
+            if(value.answer == $("input[name='"+quizItem+"']:checked").val()) {
+              scoreList.push("1");
+            }else{
+              scoreList.push("0");
+            }
+          }
+          if(value.type == 'trueOrFalse') {
+            answerList.push($("input[name='"+quizItem+"']:checked").val());
+            if(value.answer == $("input[name='"+quizItem+"']:checked").val()) {
+              scoreList.push("1");
+            }else{
+              scoreList.push("0");
+            }
+          }
+          if(value.type == 'enumeration') {
+            answerList.push($("textarea[name='"+quizItem+"']").val());
+            var correctAnswers = value.answer.toUpperCase().split(", ")
+            var studAnswers = $("textarea[name='"+quizItem+"']").val().toUpperCase().split(", ")
+            var score = "1";
+            $.each(correctAnswers, function(k, v){
+              if(!studAnswers.includes(v)){
+                score = "0";
+              }
+            })
+
+            scoreList.push(score);
+          }
+          if(value.type == 'fillInTheBlank' || value.type == 'identification') {
+            answerList.push($("input[name='"+quizItem+"']").val());
+            if(value.answer.toUpperCase().trim() == $("input[name='"+quizItem+"']").val().toUpperCase().trim()) {
+              scoreList.push("1");
+            }else{
+              scoreList.push("0");
+            }
+          }
+        })
+        
+        if(answerList.includes("") || answerList.includes(undefined)){
+          $("#showCompleteQuizError").show();
+        } else {
+          $("#showCompleteQuizError").hide();
+          $("#showCompleteQuizSuccess").show();
+          $(".qAnswer").attr("disabled", true);
+          $(this).attr("disabled",true);
+          
+          var data = {
+            quizId : $("#takeQuizModal input[name='quizId']").val(),
+            subjectId : $("#takeQuizModal input[name='subjectId']").val(),
+            studentId : $("#takeQuizModal input[name='id']").val(),
+            answers : answerList,
+            scores : scoreList
+          }
+
+          submitQuiz(data)
+          
+        }
+      })
+
+      $(".deleteItem").click(function(){
+          if($(container+" .hiddenQuestionKey").val() != "")
+          {
+            alert("A quiz item is being edited. Please finish it first before you can delete.")
+            return
+          }
+        questions.splice($(this).attr('data'),1)
+        renderQuizTable(questions, container);
+      })
+
+      $(".editItem").click(function(){
+        var keyItem = $(this).attr('data')
+        editQuestion(keyItem, container);
+      })
+    }
+
+    function submitQuiz(data){
+          $.ajax({
+            type: "POST",
+            url: "controllers/addQuizResult.php",
+            data: JSON.stringify(data),
+              contentType: "application/json; charset=utf-8",
+              dataType: "json",
+          }).done(function(s){
+            
+          });
+    }
 
    	function renderQuizTable(data, container){
 
@@ -412,7 +760,7 @@ $(document).ready(function() {
 
    			quizCount++;
 
-   			quizHtml += "<div><b>" +quizCount+".</b> "+ value.question+"<span class='small' style='color:gray'>    <i>"+instruction+"</i></span>&nbsp;&nbsp;<span class='small' style='color:gray'><a href='#' class='editItem' data='"+key+"'>edit</a> | <a href='#' class='deleteItem' data='"+key+"'>delete</a></span></div><br/>"
+   			quizHtml += "<div><b>" +quizCount+".</b> "+ value.question+"<span class='small' style='color:gray'>    <i>"+instruction+"</i></span>&nbsp;&nbsp;<span class='small restrictedAccess' style='color:gray'><a href='#' class='editItem' data='"+key+"'>edit</a> | <a href='#' class='deleteItem' data='"+key+"'>delete</a></span></div><br/>"
    			if(value.type=='multipleChoice')
    			{
    				quizHtml += "<div> A. "+value.choices[0]+"</div>"
@@ -424,6 +772,10 @@ $(document).ready(function() {
    		})
 
    		$(container+" .quizContainer").append(quizHtml);
+
+      if($("#globalStudentId").val() != null){
+        $(".restrictedAccess").hide();
+      }
 
    		$(".deleteItem").click(function(){
      			if($(container+" .hiddenQuestionKey").val() != "")
@@ -506,6 +858,9 @@ $(document).ready(function() {
     }else if(localStorage.getItem("topSubmenu") == '#activity'){
       $("#activityToggleView").click();
       $("#activityToggleView .subject-activity").click();
+    }else if(localStorage.getItem("topSubmenu") == '#quizResults'){
+      $("#quizzesResultToggleView").click();
+      $("#quizzesResultToggleView .subject-activity").click();
     }
 
     if(localStorage.getItem("topMenu") == '#students'){
@@ -517,4 +872,26 @@ $(document).ready(function() {
       $("#editSubjectModal input[name='subjectName']").val(currentSubject);
     })
 
+    $("input[name='oldPassword']").keyup(function(){
+        if($(this).val() != $("#globalPasswordId").val()){
+          $("#showErrorChangePassword").text("Wrong Password!");
+          $("#showErrorChangePassword").show();
+          $("#changePasswordSubmit").attr("disabled",true);
+        } else {
+          $("#showErrorChangePassword").hide();
+          $("#showErrorChangePassword").text("OK");
+          $("#changePasswordSubmit").attr("disabled",false);
+        }
+    })
+
+    $("input[name='confirmPassword']").keyup(function(){
+        if($(this).val() != $("input[name='newPassword']").val()){
+          $("#showErrorChangePassword").text("Password didn't match");
+          $("#showErrorChangePassword").show();
+          $("#changePasswordSubmit").attr("disabled",true);
+        } else {
+          $("#showErrorChangePassword").hide();
+          $("#changePasswordSubmit").attr("disabled",false);
+        }
+    })
 } );

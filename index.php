@@ -1,14 +1,16 @@
 <?php
+include 'components/header.php';
+
 session_start();
 if(!isset($_SESSION['authorized'])){ //if login in session is not set
     header("Location: login.php");
+} else {
+  echo("<input type='hidden' id='globalPasswordId' value=".$_SESSION["password"].">");
 }
 
 if(isset($_SESSION["studentId"])){
   echo("<input type='hidden' id='globalStudentId' value=".$_SESSION["studentId"].">");
 }
-
-include 'components/header.php';
 ?>
 <link href="assets/css/main.css" rel="stylesheet">
   <body>
@@ -30,6 +32,13 @@ include 'components/header.php';
           </ul>
           
         </div>
+        <div class="text-white" id="changePasswordBtn" style="cursor: pointer">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item" data-toggle="modal" data-target="#changePasswordModal">
+              <a class="nav-link"><i class="fa fa-key"></i> Change Password</a>
+            </li>
+          </ul>
+        </div>
         <div class="text-white" id="logoutBtn">
           <ul class="navbar-nav mr-auto">
             <li class="nav-item">
@@ -37,12 +46,19 @@ include 'components/header.php';
             </li>
           </ul>
         </div>
+        
       </nav>
     </header>
 
     <div class="container-fluid">
       <div class="row">
         <nav class="col-sm-3 col-md-2 d-none d-sm-block bg-light sidebar" id="subjectList">
+          <?php
+              if(isset($_SESSION["fname"])){
+                echo('<h5>Welcome <span id="studentFirstName">'.$_SESSION["fname"].'</span>!</h5><br/><br/>');
+              }
+          ?>
+          
           <label>Learning Area</label>
           <select class="form-control" id="learningAreaSelect">
             <option value='0' disabled selected>----</option>
@@ -171,24 +187,62 @@ include 'components/header.php';
                   <tr>
                       <th>Quiz ID</th>
                       <th>Quiz Name</th>
-                      <th>Action</th>
+                      <th>Student Name</th>
+                      <th># Items</th>
+                      <th># Correct Answers</th>
+                      <th>Date Taken</th>
+                      <th>Section</th>
+                      <th>School Year</th>
+                      <th>Actions</th>
                   </tr>
               </thead>
               <tbody>
-                <tr>
-                      <td>1</td>
-                      <td>Quiz #1</td>
-                      <td>
-                        
-                         <a href="assets/js/ViewerJS/#../../../lessons/test.otp" target="_blank"><button class="btn btn-success"><i class="fa fa-eye"></i> View</button></a>
-                        <button class="btn btn-info"><i class="fa fa-edit"></i> Edit</button>
-                      </td>
-
-                  </tr>
+                
               </tbody>
             </table>
           </div>
         
+
+          <!--Add Subject Modal-->
+          <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content modal-lg">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Change Password</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form action="controllers/changePassword.php" method ="POST" enctype="multipart/form-data">
+               
+                <div class="modal-body">
+                  <div class="alert alert-warning" role="alert" id="showErrorChangePassword" style="display:none;">
+                    
+                  </div><br>
+                  <div class="form-group">
+                    <label for="subjectName">Old Password</label>
+                    <input type="password" class="form-control" name="oldPassword" required="" />
+                  </div>
+                  <div class="form-group">
+                    <label for="subjectName">New Password</label>
+                    <input type="password" class="form-control" name="newPassword" required="" />
+                  </div>
+                  <div class="form-group">
+                    <label for="subjectName">Confirm Password</label>
+                    <input type="password" class="form-control" name="confirmPassword" required="" />
+                  </div>
+                </div>
+            
+        
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary" id="changePasswordSubmit" disabled="">Submit</button>
+                </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
           <!--Add Subject Modal-->
           <div class="modal fade" id="addSubjectModal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -625,6 +679,49 @@ include 'components/header.php';
               </div>
             </div>
           </div>
+
+          <!--Answer Quiz Modal -->
+          <div class="modal fade large-modal" id="takeQuizModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                 <h3 id="quizTitleName"></h3>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form action="controllers/submitQuiz.php" method ="POST" enctype="multipart/form-data" onsubmit="event.preventDefault();">
+                <textarea style="display:none;" name="quizItems"></textarea>
+                <input type="hidden" style="display:none;" name="subjectId"></textarea>
+                <input type="hidden" style="display:none;" name="quizId"></textarea>
+                <input type="hidden" name="id"/>
+                <div class="modal-body">
+                      <div class="alert alert-warning" role="alert" id="showCompleteQuizError" style="display:none;">
+                        Please complete the quiz!
+                      </div>
+                      <div class="alert alert-success" role="alert" id="showCompleteQuizSuccess" style="display:none;">
+                        Quiz successfully submitted, see your score on Quiz Result Page!
+                      </div>
+                      <div>
+                        <h5>Quiz Items</h5>
+
+                        <div class="quizContainer">
+                        </div>
+                        <br/>
+                        <!--Fill In the blank-->
+                        <!--True of False-->
+                        <!--Inumeration-->
+                      </div>
+                      
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary" id="answerQuizSubmit">Submit</button>
+                </div>
+                </form>
+              </div>
+            </div>
+          </div>
         </main>
 
         <main role="main" class="col-sm-9 ml-sm-auto col-md-10 pt-3" id="studentMenuContent" style="display: none;">
@@ -665,27 +762,27 @@ include 'components/header.php';
                 <div class="modal-body">
                   <div class="form-group">
                     <label for="studentId">Student ID</label>
-                    <input type="text" class="form-control" id="studentId" name="studentId"/>
+                    <input type="text" class="form-control" id="studentId" name="studentId" required="" />
                   </div>
                   <div class="form-group">
                     <label for="firstName">First Name</label>
-                    <input type="text" class="form-control" id="firstName" name="fname"/>
+                    <input type="text" class="form-control" id="firstName" name="fname" required=""/>
                   </div>
                   <div class="form-group">
                     <label for="middleName">Middle Name</label>
-                    <input type="text" class="form-control" id="middleName" name="mname"/>
+                    <input type="text" class="form-control" id="middleName" name="mname" required=""/>
                   </div>
                   <div class="form-group">
                     <label for="lastName">Last Name</label>
-                    <input type="text" class="form-control" id="lastName" name="lname"/>
+                    <input type="text" class="form-control" id="lastName" name="lname" required=""/>
                   </div>
                   <div class="form-group">
                     <label for="studentSection">Section</label>
-                    <input type="text" class="form-control" id="studentSection" name="section"/>
+                    <input type="text" class="form-control" id="studentSection" name="section" required=""/>
                   </div>
                   <div class="form-group">
                     <label for="schoolYear">School Year</label>
-                    <input type="text" class="form-control" id="schoolYear" name="schoolYear"/>
+                    <input type="text" class="form-control" id="schoolYear" name="schoolYear" required=""/>
                   </div>  
                 </div>
                 <div class="modal-footer">

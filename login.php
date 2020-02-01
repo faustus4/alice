@@ -24,7 +24,7 @@
                  <input type="password" class="form-control" placeholder="Password" id="password">
               </div>
               <button class="btn btn-yellow-green" id="loginBtn">Login</button>
-              <button class="btn btn-secondary">Sign Up</button>
+           
            
         </div>
      </div>
