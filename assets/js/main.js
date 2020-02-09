@@ -72,6 +72,7 @@ $(document).ready(function() {
         })
 
         $("#subjectNavList li").click(function(){
+          $(".addButton").attr('disabled',false);
           $("#subjectNavList li a").removeClass("active");
           $(this).children("a").addClass("active");
           fetchLessons($(this).attr('subject'));
@@ -83,7 +84,7 @@ $(document).ready(function() {
         });
 
         $("#learningAreaSelect").change(function(){
-          $(".addButton").attr('disabled',false);
+          
 
           var learningArea = $(this).val()
           localStorage.setItem("learningArea", learningArea);
@@ -572,6 +573,7 @@ $(document).ready(function() {
 
     function renderQuizTest(data, container){
 
+
       $(container+" textarea[name='quizItems']").val(JSON.stringify(data));
       var quizHtml = "";
       var quizCount = 0;
@@ -688,6 +690,17 @@ $(document).ready(function() {
           $(".qAnswer").attr("disabled", true);
           $(this).attr("disabled",true);
           
+          var studentScore = 0;
+
+          $.each(scoreList, function(k,v){
+            if(v=='1'){
+              studentScore++;
+            }
+          });
+
+          var totalNumberofQuizItems = scoreList.length;
+          $("#showCompleteQuizSuccess").html("Quiz submitted successfully. You got <b>"+studentScore+"</b> correct answer(s) out of <b>"+totalNumberofQuizItems+"</b> questions.");
+
           var data = {
             quizId : $("#takeQuizModal input[name='quizId']").val(),
             subjectId : $("#takeQuizModal input[name='subjectId']").val(),
@@ -701,20 +714,27 @@ $(document).ready(function() {
         }
       })
 
-      $(".deleteItem").click(function(){
-          if($(container+" .hiddenQuestionKey").val() != "")
+      $.get( "controllers/getQuizPerStudent.php?studentId="+$("#globalStudentId").val(), function( data1 ) {
+        $("#youAlreadyAnsweredTheQuiz").hide();
+        $("#answerQuizSubmit").show();
+        var sResult = JSON.parse(data1);
+        $.each(sResult, function(key,value){
+          if($("#takeQuizModal input[name='quizId']").val() == value.quizId)
           {
-            alert("A quiz item is being edited. Please finish it first before you can delete.")
-            return
+            var scoreList = JSON.parse(value.scores);
+            var score = 0;
+            $.each(scoreList,function(k,v){
+              if(v=='1'){
+                score++;
+              }
+            })
+            $("#youAlreadyAnsweredTheQuiz").show();
+            $("#youAlreadyAnsweredTheQuiz").html("You already answered this quiz. You got <b>"+score+"</b> correct answer(s) out of <b>"+scoreList.length+"</b> questions.");
+            $(".qAnswer").attr("disabled",true);
+            $("#answerQuizSubmit").hide();
           }
-        questions.splice($(this).attr('data'),1)
-        renderQuizTable(questions, container);
-      })
-
-      $(".editItem").click(function(){
-        var keyItem = $(this).attr('data')
-        editQuestion(keyItem, container);
-      })
+        })
+      });
     }
 
     function submitQuiz(data){

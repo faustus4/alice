@@ -1,6 +1,19 @@
 .btn-yellow-green {
-	background-color: #34fa68 !important;
+	background-color: #07521b !important;
     color: #fff;
+}
+
+#loginPage {
+	height: 100vh;
+    background: #17a2b8;
+}
+
+#loginSheet {
+	-webkit-box-shadow: 3px 4px 24px -17px rgba(0,0,0,1);
+	-moz-box-shadow: 3px 4px 24px -17px rgba(0,0,0,1);
+	box-shadow: 3px 4px 24px -17px rgba(0,0,0,1);
+	padding: 30px;
+	background: white;
 }
 
 #subjectList {

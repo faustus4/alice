@@ -16,7 +16,7 @@ if(isset($_SESSION["studentId"])){
   <body>
     <header>
       <nav class="navbar navbar-expand-md fixed-top top-bar">
-        <a class="navbar-brand" href="#">TLE ICCM</a>
+        <a class="navbar-brand" href="#">TLE ICCSM</a>
         <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -79,9 +79,6 @@ if(isset($_SESSION["studentId"])){
             </a>&nbsp;
             <a class="text-sm" data-toggle="modal" data-target="#editSubjectModal" id="editSubject">
               <i class="fa fa-edit" data-toggle="tooltip" data-placement="top" title="Tooltip on top"></i>
-            </a>&nbsp;
-            <a class="text-sm" data-toggle="modal" data-target="#deleteSubjectModal" id="deleteSubject">
-              <i class="fa fa-trash" data-toggle="tooltip" data-placement="top" title="Tooltip on top"></i>
             </a>
           </div>
           
@@ -140,7 +137,7 @@ if(isset($_SESSION["studentId"])){
           </div>
 
           <div id="quizzesSection">
-            <button type="button" class="btn btn-primary restrictedAccess" data-toggle="modal" data-target="#addQuizModal">
+            <button type="button" class="btn btn-primary addButton restrictedAccess" data-toggle="modal" data-target="#addQuizModal" disabled="">
               <i class="fa fa-plus"></i> Add Quiz
             </button>
             <br/><br/>
@@ -159,7 +156,7 @@ if(isset($_SESSION["studentId"])){
           </div>
 
           <div id="activitiesSection">
-            <button type="button" class="btn btn-primary restrictedAccess" data-toggle="modal" data-target="#addActivityModal">
+            <button type="button" class="btn btn-primary addButton restrictedAccess" data-toggle="modal" data-target="#addActivityModal" disabled="">
               <i class="fa fa-plus"></i> Add Activity
             </button>
             <br/><br/>
@@ -384,6 +381,7 @@ if(isset($_SESSION["studentId"])){
                   </button>
                 </div>
                 <form action="controllers/addActivity.php" method ="POST" enctype="multipart/form-data">
+                  <input type="hidden" name="subjectId">
                 <div class="modal-body">
                       <div class="form-group">
                         <label for="activityName">Activity Name</label>
@@ -395,7 +393,7 @@ if(isset($_SESSION["studentId"])){
                       </div>
                       <div class="form-group">
                         <label for="activityFile">Activity File</label>
-                        <input type="file" class="form-control" name="activityFile" accept="application/pdf, application/ODF"/>
+                        <input type="file" class="form-control" name="activityFile" />
                         <small class="form-text text-muted">please upload PDF and ODF file only</small>
                       </div>
                       
@@ -702,6 +700,10 @@ if(isset($_SESSION["studentId"])){
                       <div class="alert alert-success" role="alert" id="showCompleteQuizSuccess" style="display:none;">
                         Quiz successfully submitted, see your score on Quiz Result Page!
                       </div>
+                      <div class="alert alert-success" role="alert" id="youAlreadyAnsweredTheQuiz" style="display:none;">
+                        You already answer this quiz!
+                      </div>
+                      
                       <div>
                         <h5>Quiz Items</h5>
 

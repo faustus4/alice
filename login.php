@@ -1,17 +1,16 @@
 <?php
 	include "components/header.php"
 ?>
-<link href="assets/css/login.css" rel="stylesheet">
-<div class="sidenav">
-     <div class="login-main-text">
-        <h2>Interactive Computer<br> Controlled Instruction Material</h2>
-        
-     </div>
-  </div>
+<div id="loginPage">
   <div class="main">
-     <div class="col-md-6 col-sm-12">
+    <br/><br/>
+    <div class="row">
+      <div class="col-md-4 col-sm-12"></div>
+        <div class="col-md-4 col-sm-12" id="loginSheet">
         
         <div class="login-form">
+
+          <h2 style="text-align: center">Interactive Computer<br> Controlled Instruction Material</h2><br/><br/>
            <div class="alert alert-warning" role="alert" id="showErrorLogin" style="display:none;">
               Username and password didn't match.
             </div><br>
@@ -28,7 +27,13 @@
            
         </div>
      </div>
+     <div class="col-md-4 col-sm-12"></div>
+
+    </div>
+     
   </div>
+
+</div>
 
 <?php
 	include "components/footer.php"

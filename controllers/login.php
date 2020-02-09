@@ -11,6 +11,13 @@ $input = json_decode($inputJSON, TRUE); //convert JSON into array
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 if ($conn->connect_error) {
+	
+	$newMysql = new mysqli($servername, $username, $password);
+
+	$commands = file_get_contents("../alice.sql");
+
+	$newMysql->multi_query($commands);
+
     die("Connection failed: " . $conn->connect_error);
 } 
 
