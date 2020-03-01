@@ -10,7 +10,7 @@
         
         <div class="login-form">
 
-          <h2 style="text-align: center">Interactive Computer<br> Controlled Instruction Material</h2><br/><br/>
+          <h2 style="text-align: center">Interactive Computer<br> Controlled Supplementary Material</h2><br/><br/>
            <div class="alert alert-warning" role="alert" id="showErrorLogin" style="display:none;">
               Username and password didn't match.
             </div><br>

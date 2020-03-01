@@ -17,11 +17,11 @@ if ($conn->connect_error) {
 $sql = @"SELECT * FROM quiz_results qr 
 	INNER JOIN students st on st.id = qr.student_id
 	INNER JOIN quizzes q on q.quiz_id = qr.quiz_id
+	INNER JOIN subjects sub ON sub.id = qr.subject_id
 	WHERE  qr.student_id =".$_GET["studentId"];
 
 
 $result = $conn->query($sql);
-
 
 if ($result->num_rows > 0) {
 	while($row= mysqli_fetch_assoc($result)){
@@ -44,7 +44,8 @@ if ($result->num_rows > 0) {
 			"scores" => $row["score"],
 			"section" => $row["section"],
 			"schoolYear" => $row["school_year"],
-			"dateUpdated" => $row["date_updated"]
+			"dateUpdated" => $row["date_updated"],
+			"subjectName" => $row["name"]
 		));
 
 

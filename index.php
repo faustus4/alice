@@ -718,6 +718,7 @@ if(isset($_SESSION["studentId"])){
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary" id="answerQuizPrint" style="display: none;">Print</button>
                   <button type="submit" class="btn btn-primary" id="answerQuizSubmit">Submit</button>
                 </div>
                 </form>
@@ -839,6 +840,40 @@ if(isset($_SESSION["studentId"])){
                   <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
                 </form>
+              </div>
+            </div>
+          </div>
+          <div class="modal fade" id="viewStudentQuizResults" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Student Quiz Score</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                
+                <div class="modal-body">
+                   <table id="studentQuizResultsTable" class="table" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Quiz Name</th>
+                            <th>Date</th>
+                            <th># items</th>
+                            <th>Score</th>
+                            <th>Percentage</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+               
               </div>
             </div>
           </div>

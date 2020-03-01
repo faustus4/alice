@@ -104,3 +104,8 @@
 {
 	display: inherit;
 }
+
+#viewStudentQuizResults .modal-dialog{
+
+	max-width: 100%;
+}

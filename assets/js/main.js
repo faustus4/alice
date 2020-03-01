@@ -10,6 +10,8 @@ $(document).ready(function() {
     var t = $('#lessonListTable').DataTable();
 
     var q = $('#quizListTable').DataTable();
+    var studentQuizResultTable = $('#studentQuizResultsTable').DataTable();
+
     var activityTable = $('#activityListTable').DataTable();
 
     $('#studentListTable thead tr').clone(true).appendTo( '#studentListTable thead' );
@@ -176,14 +178,25 @@ $(document).ready(function() {
           $("#showCompleteQuizError").hide();
           $("#showCompleteQuizSuccess").hide();
           $("#answerQuizSubmit").hide();
-
+          $("#answerQuizPrint").show();
           renderQuizTestResult(questions, "#takeQuizModal", answers, scores);
         })
 
       });
     }
 
+    $("#answerQuizPrint").click(function(){
+      $("#quizzesResultSection").hide();
+      $(".subject-activities").hide();
+      window.print();
+    })
 
+    
+    $('#takeQuizModal').on('hidden.bs.modal', function () {
+      $("#quizzesResultSection").show();
+      $(".subject-activities").show();
+    })
+    
     function fetchStudents(){
       var counter = 1;
       $.get( "controllers/getStudents.php", function( data ) {
@@ -198,7 +211,7 @@ $(document).ready(function() {
                 val.section,
                 val.defaultPassword,
                 val.schoolYear,
-                '<div style="display:none;">'+val.id+'</div><button class="btn btn-info btn-sm editStudentBtn" data-target="#updateStudentModal" data-toggle="modal"><i class="fa fa-edit"></i> Update</button>'
+                '<div style="display:none;">'+val.id+'</div><button class="btn btn-info btn-sm editStudentBtn" data-target="#updateStudentModal" data-toggle="modal"><i class="fa fa-edit"></i> Update</button> &nbsp; <button class="btn btn-primary btn-sm viewStudentQuizResults" data-target="#viewStudentQuizResults" data-toggle="modal"><i class="fa fa-edit"></i> Scores</button>'
             ] ).draw( false );
         })
 
@@ -210,6 +223,32 @@ $(document).ready(function() {
           $("#updateStudentModal input[name='section']").val($(this).parent().siblings(":eq(4)").text());
           $("#updateStudentModal input[name='schoolYear']").val($(this).parent().siblings(":eq(6)").text());
           $("#updateStudentModal input[name='id']").val($(this).siblings('div').text());
+        })
+
+        $(".viewStudentQuizResults").click(function(){
+          $.get( "controllers/getQuizPerStudent.php?studentId="+$(this).siblings('div').text(), function( data1 ) {
+            studentQuizResultTable.clear().draw();
+            $.each(JSON.parse(data1), function(key, val){
+              var scoreList = JSON.parse(val.scores);
+              var score = 0;
+              $.each(scoreList,function(k,v){
+                if(v=='1'){
+                  score++;
+                }
+              })
+              studentQuizResultTable.row.add( [
+                    val.subjectName,
+                    val.quizName,
+                    val.dateUpdated,
+                    scoreList.length,
+                    score,
+                    ((score/scoreList.length)*100) + " %"
+
+                    
+                ] ).draw( false );
+            })
+            console.log(data1)
+          });
         })
       });
     }
@@ -272,6 +311,7 @@ $(document).ready(function() {
           $("#showCompleteQuizSuccess").hide();
           $("#answerQuizSubmit").attr("disabled", false);
           $("#answerQuizSubmit").show();
+          $("#answerQuizPrint").hide();
           renderQuizTest(questions, "#takeQuizModal");
         })
 
@@ -717,6 +757,7 @@ $(document).ready(function() {
       $.get( "controllers/getQuizPerStudent.php?studentId="+$("#globalStudentId").val(), function( data1 ) {
         $("#youAlreadyAnsweredTheQuiz").hide();
         $("#answerQuizSubmit").show();
+        $("#answerQuizPrint").hide();
         var sResult = JSON.parse(data1);
         $.each(sResult, function(key,value){
           if($("#takeQuizModal input[name='quizId']").val() == value.quizId)
