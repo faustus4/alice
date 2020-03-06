@@ -109,3 +109,7 @@
 
 	max-width: 100%;
 }
+
+.for-printing-style {
+	font-size: 12px;
+}
