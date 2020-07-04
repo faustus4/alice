@@ -28,7 +28,8 @@ if ($result->num_rows > 0) {
 			"lessonDescription" => $row["lesson_description"],
 			"lessonName" => $row["lesson_name"],
 			"fileName" => $row["file_name"],
-			"dateUpdated" => $row["date_updated"]
+			"dateUpdated" => $row["date_updated"],
+			"youtubeLink" => $row["youtube_link"]
 		));
 	}
 } else {

@@ -131,7 +131,7 @@ $(document).ready(function() {
   	            val.lessonName,
   	            val.lessonDescription,
   	            val.dateUpdated,
-  	            '<a href="assets/js/ViewerJS/#../../../lessons/'+val.fileName+'" target="_blank"><button class="btn btn-success btn-sm viewLesson"><i class="fa fa-eye"></i> View</button></a>    <button class="btn btn-info btn-sm editLessonBtn restrictedAccess" data-target="#updateLessonModal" data-toggle="modal"><i class="fa fa-edit"></i> Edit</button>'
+  	            '<button class="btn btn-danger btn-sm watchYouTube" data-link="'+val.youtubeLink+'"><i class="fab fa-youtube"></i> Watch Lesson</button> <a href="assets/js/ViewerJS/#../../../lessons/'+val.fileName+'" target="_blank"><button class="btn btn-success btn-sm viewLesson"><i class="fa fa-eye"></i> View</button></a>    <button class="btn btn-info btn-sm editLessonBtn restrictedAccess" data-target="#updateLessonModal" data-toggle="modal"><i class="fa fa-edit"></i> Edit</button>'
   	        ] ).draw( false );
   		  })
 
@@ -139,7 +139,32 @@ $(document).ready(function() {
         	$("#updateLessonModal input[name='lessonId']").val($(this).parent().siblings(":eq(0)").text());
         	$("#updateLessonModal input[name='lessonName']").val($(this).parent().siblings(":eq(1)").text());
         	$("#updateLessonModal input[name='lessonDescription']").val($(this).parent().siblings(":eq(2)").text());
+
+          $("#updateLessonModal input[name='lessonYoutubeLink']").val($(this).siblings(":eq(0)").attr("data-link"));
         })
+
+        $(".watchYouTube").click(function(){
+          var embedLink = $(this).attr("data-link").replace("watch?v=", "embed/")
+          var appendWatch =  `<div class="youtubeContainer"><div class="closeYouTube"><i class="fas fa-times-circle"></i></div><iframe height="80%" width="80%"
+                              src="`+embedLink+`">
+                              </iframe></div>`
+          if(embedLink == "")
+          {
+            appendWatch = `<div class="youtubeContainer"><div class="closeYouTube"><i class="fas fa-times-circle"></i></div>
+                              <div class="youtubeWarning">NO AVAILABLE VIDEO FOR THIS LESSON.</div>
+                              </iframe></div>`
+          }
+
+          $("body").append(appendWatch);
+
+          $(".closeYouTube i").click(function(){
+            $(this).parent().parent().remove();
+            
+            //$("body").remove(".watchYouTube");
+          })
+        })
+
+
 
         if($("#globalStudentId").val() != null){
           $(".restrictedAccess").hide();

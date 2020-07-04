@@ -19,6 +19,7 @@ if(isset($_FILES['lessonFile'])){
 
 $lessonName = $_POST['lessonName'];
 $lessonDescription = $_POST['lessonDescription'];
+$lessonYoutubeLink = $_POST['lessonYoutubeLink'];
 $subjectId = $_POST['subjectId'];
 
 
@@ -28,7 +29,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$sql = "INSERT INTO lessons (subject_id, lesson_description, lesson_name, file_name) values ('".$subjectId."','".$lessonDescription."','".$lessonName."', '".$file_name."')";
+$sql = "INSERT INTO lessons (subject_id, lesson_description, lesson_name, file_name, youtube_link) values ('".$subjectId."','".$lessonDescription."','".$lessonName."', '".$file_name."','".$lessonYoutubeLink."')";
 
 $result = $conn->query($sql);
 

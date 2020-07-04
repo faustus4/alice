@@ -127,7 +127,7 @@ if(isset($_SESSION["studentId"])){
                       <th>Lesson Name</th>
                       <th>Description</th>
                       <th>Updated</th>
-                      <th>Action</th>
+                      <th width="20%">Action</th>
                   </tr>
               </thead>
               <tbody>
@@ -318,6 +318,10 @@ if(isset($_SESSION["studentId"])){
                         <input type="text" class="form-control" id="lessonDescription" name="lessonDescription"/>
                       </div>
                       <div class="form-group">
+                        <label for="lessonName">Youtube Link</label>
+                        <input type="text" class="form-control" id="lessonYoutubeLink" name="lessonYoutubeLink"/>
+                      </div>
+                      <div class="form-group">
                         <label for="lessonFile">Lesson File</label>
                         <input type="file" class="form-control" name="lessonFile"/>
                         <small class="form-text text-muted">please upload PDF and ODF file only</small>
@@ -353,6 +357,10 @@ if(isset($_SESSION["studentId"])){
                       <div class="form-group">
                         <label for="lessonName">Description</label>
                         <input type="text" class="form-control" name="lessonDescription"/>
+                      </div>
+                      <div class="form-group">
+                        <label for="lessonName">Youtube Link</label>
+                        <input type="text" class="form-control" name="lessonYoutubeLink"/>
                       </div>
                       <div class="form-group">
                         <label for="lessonFile">Lesson File</label>

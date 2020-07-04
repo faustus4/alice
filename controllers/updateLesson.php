@@ -12,6 +12,7 @@ if ($conn->connect_error) {
 
 $lessonName = $_POST['lessonName'];
 $lessonDescription = $_POST['lessonDescription'];
+$lessonYoutubeLink = $_POST['lessonYoutubeLink'];
 $lessonId = $_POST['lessonId'];
 
 if(isset($_FILES['lessonFile'])){
@@ -41,6 +42,7 @@ if(isset($_FILES['lessonFile'])){
 $sql = @"UPDATE lessons set 
 		lesson_description = '".$lessonDescription."', 
 		lesson_name = '".$lessonName."', 
+		youtube_link = '".$lessonYoutubeLink."', 
 		file_name = '".$file_name."' 
 		where lesson_id = '".$lessonId."'";
 

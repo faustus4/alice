@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS `lessons` (
   `lesson_name` varchar(500) DEFAULT NULL,
   `file_name` varchar(500) DEFAULT NULL,
   `date_updated` timestamp NOT NULL DEFAULT current_timestamp(),
+  `youtube_link` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`lesson_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
