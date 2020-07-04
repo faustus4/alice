@@ -148,7 +148,7 @@ $(document).ready(function() {
           var appendWatch =  `<div class="youtubeContainer"><div class="closeYouTube"><i class="fas fa-times-circle"></i></div><iframe height="80%" width="80%"
                               src="`+embedLink+`">
                               </iframe></div>`
-          if(embedLink == "")
+          if($(this).attr("data-link").split("?")[0] != "https://www.youtube.com/watch")
           {
             appendWatch = `<div class="youtubeContainer"><div class="closeYouTube"><i class="fas fa-times-circle"></i></div>
                               <div class="youtubeWarning">NO AVAILABLE VIDEO FOR THIS LESSON.</div>
