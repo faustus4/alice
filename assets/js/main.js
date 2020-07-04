@@ -174,6 +174,7 @@ $(document).ready(function() {
     }
 
     function fetchQuizResults(subjectId){
+      
       var counter = 1;
       $.get( "controllers/getQuizResult.php?subjectId="+subjectId, function( data ) {
         qr.clear().draw();
@@ -192,9 +193,12 @@ $(document).ready(function() {
         })
 
         $(".viewQuizResultBtn").click(function(){
-
+          $("#quizTakerScore").parent().show();
           $("#takeQuizModal input[name='quizId']").val($(this).parent().siblings(":eq(0)").text());
           $("#quizTitleName").text($(this).parent().siblings(":eq(1)").text());
+          $("#quizTakerName").text($(this).parent().siblings(":eq(2)").text());
+          $("#quizTakeDate").text($(this).parent().siblings(":eq(5)").text());
+          $("#quizTakerScore").text("Score: "+ $(this).parent().siblings(":eq(4)").text() +"/"+$(this).parent().siblings(":eq(3)").text());
           questions =  JSON.parse($(this).siblings('div.questions').text());
           var answers =  JSON.parse($(this).siblings('div.answers').text());
           var scores =  JSON.parse($(this).siblings('div.scores').text());
@@ -210,16 +214,52 @@ $(document).ready(function() {
       });
     }
 
+        var beforePrint = function () {
+          $("#quizzesResultSection").hide();
+          $("#takeQuizModal").addClass("for-printing-style");
+          $(".subject-activities").hide();
+          $(".modal-footer").hide();
+          $(".close").hide();
+        };
+
+        var afterPrint = function () {
+            $("#quizzesResultSection").show();
+            $(".subject-activities").show();
+            $("#takeQuizModal").removeClass("for-printing-style");
+            $(".modal-footer").show();
+            $(".close").show();
+        };
+
+        if (window.matchMedia) {
+            var mediaQueryList = window.matchMedia('print');
+
+            mediaQueryList.addListener(function (mql) {
+                //alert($(mediaQueryList).html());
+                if (mql.matches) {
+                    beforePrint();
+                } else {
+                    afterPrint();
+                }
+            });
+        }
+
+        window.onbeforeprint = beforePrint;
+        window.onafterprint = afterPrint;
+
     $("#answerQuizPrint").click(function(){
-      $("#quizzesResultSection").hide();
-      $(".subject-activities").hide();
+      
       window.print();
     })
 
     
     $('#takeQuizModal').on('hidden.bs.modal', function () {
-      $("#quizzesResultSection").show();
-      $(".subject-activities").show();
+      if(localStorage.getItem("topSubmenu") == '#quizResults'){
+        
+        $("#quizTakerName").text("");
+        $("#quizTakeDate").text("");
+      } else {
+        $("#youAlreadyAnsweredTheQuiz, #showCompleteQuizSuccess").hide();
+      }
     })
     
     function fetchStudents(){
@@ -306,7 +346,7 @@ $(document).ready(function() {
     }
 
     function fetchQuizzes(subjectId){
-
+      
       var counter = 1;
       $.get( "controllers/getQuizzes.php?subjectId="+subjectId, function( data ) {
         q.clear().draw();
@@ -328,8 +368,10 @@ $(document).ready(function() {
         })
 
         $(".takeQuizBtn").click(function(){
+          $("#quizTakerScore").parent().hide();
           $("#takeQuizModal input[name='quizId']").val($(this).parent().siblings(":eq(0)").text());
           $("#quizTitleName").text($(this).parent().siblings(":eq(1)").text());
+
           questions =  JSON.parse($(this).siblings('div').text());
           $("input[name='id']").val($("#globalStudentId").val());
           $("#showCompleteQuizError").hide();

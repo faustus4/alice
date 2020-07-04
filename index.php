@@ -691,7 +691,15 @@ if(isset($_SESSION["studentId"])){
             <div class="modal-dialog" role="document">
               <div class="modal-content">
                 <div class="modal-header">
-                 <h3 id="quizTitleName"></h3>
+                  <div style = "display: flex; width: 100%; justify-content: space-between;">
+                    <div><h6 id="quizTakerName"></h6></div>
+                    <div><h6 id="quizTitleName"></h6></div>
+                    <div><h6 id="quizTakeDate"></h6></div>
+                    <div><h6 id="quizTakerScore"></h6></div>
+                  </div>
+                 
+                 
+                 
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
